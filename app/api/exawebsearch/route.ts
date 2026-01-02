@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Exa from 'exa-js';
 
-const exaApi = new Exa(process.env.EXA_API_KEY);
+// Check if API key is available
+const exaApiKey = process.env.EXA_API_KEY;
+const exaApi = exaApiKey ? new Exa(exaApiKey) : null;
 
 export async function POST(req: NextRequest) {
     try {
@@ -9,6 +11,14 @@ export async function POST(req: NextRequest) {
 
         if (!query) {
             return NextResponse.json({ error: 'Запрос обязателен' }, { status: 400 });
+        }
+
+        // Check if Exa API is available
+        if (!exaApi) {
+            return NextResponse.json({ 
+                error: 'Поиск в интернете временно недоступен. API ключ не настроен.',
+                results: [] 
+            }, { status: 200 });
         }
 
         // Format contextual query with previous queries
