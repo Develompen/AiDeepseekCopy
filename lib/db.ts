@@ -45,7 +45,7 @@ async function getDB(): Promise<IDBPDatabase<DeepseekChatDB>> {
       db: IDBPDatabase<DeepseekChatDB>,
       oldVersion: number,
       _newVersion: number | null,
-      transaction: IDBPTransaction<DeepseekChatDB, [typeof STORE_NAME], 'versionchange'>
+      transaction: IDBPTransaction<DeepseekChatDB, "chats"[], 'versionchange'>
     ) {
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
