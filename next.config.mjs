@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-    basePath: "/deepseekchat",
     experimental: {
       serverActions: {
         allowedOrigins: ["demo.exa.ai"],

@@ -1,40 +1,45 @@
-// app/api/exawebsearch/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Exa from "exa-js";
+import Exa from 'exa-js';
 
-export const maxDuration = 60;
-
-const exa = new Exa(process.env.EXA_API_KEY as string);
+const exaApi = new Exa(process.env.EXA_API_KEY);
 
 export async function POST(req: NextRequest) {
-  try {
-    const { query, previousQueries = [] } = await req.json();
-    if (!query) {
-      return NextResponse.json({ error: 'Query is required' }, { status: 400 });
+    try {
+        const { query, previousQueries = [] } = await req.json();
+
+        if (!query) {
+            return NextResponse.json({ error: 'Запрос обязателен' }, { status: 400 });
+        }
+
+        // Format contextual query with previous queries
+        let contextualQuery = query;
+        if (previousQueries.length > 0) {
+            const context = previousQueries
+                .map((q: string) => `Предыдущий вопрос: ${q}`)
+                .join('\n');
+            contextualQuery = `${context}\n\nТеперь ответьте на вопрос: ${query}`;
+        }
+
+        // Perform web search with contents
+        const searchResults = await exaApi.searchAndContents(contextualQuery, {
+            numResults: 5,
+            text: true,
+        });
+
+        // Format results
+        const results = searchResults.results.map((result: any) => ({
+            title: result.title,
+            url: result.url,
+            text: result.text,
+            author: result.author,
+            publishedDate: result.publishedDate,
+            favicon: result.favicon,
+        }));
+
+        return NextResponse.json({ results });
+
+    } catch (error) {
+        console.error('Search error:', error);
+        return NextResponse.json({ error: `Не удалось выполнить поиск | ${error}` }, { status: 500 });
     }
-
-    // Format previous queries as context
-    let contextualQuery = query;
-    if (previousQueries.length > 0) {
-      const context = previousQueries
-        .map((q: string) => `Previous question: ${q}`)
-        .join('\n');
-      contextualQuery = `${context}\n\nNow answer the question: ${query}`;
-    }
-
-    // Use Exa to search for content related to the claim
-    const result = await exa.searchAndContents(
-      contextualQuery,
-      {
-        type: "auto",
-        text: true,
-        numResults: 5,
-        // livecrawl: "always",
-      }
-    );
-
-    return NextResponse.json({ results: result.results });
-  } catch (error) {
-    return NextResponse.json({ error: `Failed to perform search | ${error}` }, { status: 500 });
-  }
 }

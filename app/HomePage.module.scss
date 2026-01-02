@@ -1,0 +1,72 @@
+.page {
+  min-height: 100vh;
+}
+
+.shell {
+  display: flex;
+  height: calc(100vh - 73px);
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 320px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  transition: transform 220ms cubic-bezier(0.2, 0.9, 0.2, 1), width 220ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  will-change: transform, width;
+}
+
+.sidebarClosed {
+  width: 0;
+  transform: translateX(-12px);
+}
+
+.sidebarInner {
+  width: 320px;
+  height: 100%;
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardIn {
+  animation: fadeUp 220ms ease-out both;
+}
+
+.btn {
+  border-radius: 14px;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, transform 120ms ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+
+  .cardIn {
+    animation: none;
+  }
+
+  .btn {
+    transition: none;
+  }
+}
