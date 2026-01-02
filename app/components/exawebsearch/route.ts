@@ -4,13 +4,23 @@ import Exa from "exa-js";
 
 export const maxDuration = 60;
 
-const exa = new Exa(process.env.EXA_API_KEY as string);
+// Check if API key is available
+const exaApiKey = process.env.EXA_API_KEY;
+const exa = exaApiKey ? new Exa(exaApiKey) : null;
 
 export async function POST(req: NextRequest) {
   try {
     const { query, previousQueries = [] } = await req.json();
     if (!query) {
       return NextResponse.json({ error: 'Запрос обязателен' }, { status: 400 });
+    }
+
+    // Check if Exa API is available
+    if (!exa) {
+      return NextResponse.json({ 
+        error: 'Поиск в интернете временно недоступен. API ключ не настроен.',
+        results: [] 
+      }, { status: 200 });
     }
 
     // Format previous queries as context
